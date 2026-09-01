@@ -96,6 +96,32 @@ SmartCart-Clustering-System/
 
 ---
 
+## 🖥️ Project Screenshots
+
+### 1. Dataset Overview
+
+The dashboard starts with a clean dataset overview where users can preview customer records before running the clustering process.
+
+![SmartCart Overview](assets/screenshots/smartcart-overview.png)
+
+---
+
+### 2. Customer Clustering & PCA Visualization
+
+After clustering, the dashboard shows the distribution of customers across the four clusters along with a PCA-based visualization of the customer segments.
+
+![SmartCart Clusters](assets/screenshots/smartcart-clusters.png)
+
+---
+
+### 3. Cluster Insights & Model Information
+
+The final section provides an interpretation of each customer segment, allows the clustered dataset to be downloaded, and summarizes the machine learning approach used by the system.
+
+![SmartCart Insights](assets/screenshots/smartcart-insights.png)
+
+---
+
 ## 📡 API Endpoints
 
 | Method | Endpoint | Description |
@@ -147,3 +173,13 @@ SmartCart-Clustering-System/
 - **Vanilla JavaScript** (ES6 Fetch API, DOM manipulation)
 - **Chart.js** (Lightweight canvas charts)
 - **Uvicorn** (ASGI web server)
+
+---
+
+## 👨‍💻 Author
+
+**Adarsh Jaiswal**
+
+B.Tech — Computer Science & Engineering
+
+---
