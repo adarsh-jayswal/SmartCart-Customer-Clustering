@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartCart — Customer Clustering & Segmentation</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Chart.js for clean data visualization -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+    <!-- Professional Application Header -->
+    <header class="app-header">
+        <div class="header-container">
+            <div class="header-brand">
+                <span class="brand-name">SmartCart</span>
+                <span class="brand-divider">/</span>
+                <span class="brand-sub">Customer Clustering</span>
+            </div>
+            <nav class="header-nav">
+                <a href="#hero-section">Overview</a>
+                <a href="#results-section">Clusters</a>
+                <a href="#about-section">About</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="main-wrapper">
+
+        <!-- Compact Hero & Upload Section -->
+        <section id="hero-section" class="hero-section">
+            <div class="hero-content">
+                <h1 class="hero-title">Customer Segmentation, made visible.</h1>
+                <p class="hero-subtitle">Upload customer data and discover groups with similar purchasing and behavioral patterns.</p>
+            </div>
+
+            <!-- Upload Dropzone Component -->
+            <div class="upload-container" id="upload-container">
+                <div class="upload-dropzone" id="upload-dropzone">
+                    
+                    <!-- Drag & Drop Prompt (Default State) -->
+                    <div class="dropzone-prompt" id="dropzone-prompt">
+                        <div class="upload-icon-wrapper">
+                            <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="12" y1="19" x2="12" y2="5"></line>
+                                <polyline points="5 12 12 5 19 12"></polyline>
+                            </svg>
+                        </div>
+                        <p class="dropzone-text">Drop your CSV dataset here</p>
+                        <p class="dropzone-sub">or choose a file from your computer</p>
+                        
+                        <div class="dropzone-buttons">
+                            <button type="button" class="btn btn-primary" id="btn-choose-file">Choose CSV</button>
+                            <button type="button" class="btn btn-ghost" id="btn-sample-data">Use Sample Dataset</button>
+                        </div>
+                        <input type="file" id="file-input" accept=".csv" class="hidden-input">
+                        <span class="dropzone-hint">CSV files only</span>
+                    </div>
+
+                    <!-- File Selected / Loaded State -->
+                    <div class="file-loaded-state hidden" id="file-loaded-state">
+                        <div class="loaded-file-info">
+                            <span class="check-icon">✓</span>
+                            <div class="loaded-file-details">
+                                <strong id="loaded-filename">smartcart_customers.csv</strong>
+                                <span id="loaded-metadata" class="loaded-meta">2,236 rows · 22 columns</span>
+                            </div>
+                        </div>
+                        <div class="loaded-file-actions">
+                            <button type="button" class="btn btn-secondary btn-sm" id="btn-change-file">Change file</button>
+                            <button type="button" class="btn btn-primary btn-run-main" id="btn-run-clustering">Run Clustering</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Validation Alert -->
+                <div class="alert alert-error hidden" id="validation-alert">
+                    <strong>Validation Error:</strong> <span id="validation-error-msg">Missing required columns.</span>
+                </div>
+            </div>
+
+            <!-- Dataset Raw Preview -->
+            <div class="dataset-preview-container hidden" id="dataset-preview-container">
+                <div class="preview-header-bar">
+                    <h3 class="preview-title">Dataset Preview</h3>
+                    <span class="preview-meta" id="preview-sub-text">2,236 customers · 22 columns</span>
+                </div>
+                <div class="table-scroll-wrapper">
+                    <table class="data-table preview-table">
+                        <thead id="preview-thead"></thead>
+                        <tbody id="preview-tbody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Real-Time Processing Status Bar -->
+        <div class="clustering-status-box hidden" id="clustering-status-box">
+            <div class="status-spinner"></div>
+            <span id="status-message">Applying preprocessing, scaling, PCA, and Agglomerative Clustering...</span>
+        </div>
+
+        <!-- Results Section (Un-hidden after clustering execution) -->
+        <div class="results-container hidden" id="results-section">
+            
+            <div class="section-header">
+                <h2>Customer Segments</h2>
+                <p class="section-subtitle">The dataset has been grouped into 4 clusters based on customer characteristics and behavior. Click any cluster below to filter customer records.</p>
+                <div class="audit-summary-pill" id="audit-summary-pill">
+                    <!-- Dynamic audit: 2,240 records uploaded · 2,236 customers clustered · 4 records excluded during preprocessing -->
+                </div>
+            </div>
+
+            <!-- Clickable Horizontal Cluster Summary Bar -->
+            <div class="cluster-summary-bar" id="cluster-summary-bar">
+                <!-- Dynamic Cluster Summaries inserted by JS -->
+            </div>
+
+            <!-- PCA Scatter Plot Visualization (Centerpiece) -->
+            <section class="viz-section">
+                <div class="section-header">
+                    <h2>Customer Distribution</h2>
+                    <p class="section-subtitle">Customers projected into the PCA space and grouped by cluster.</p>
+                </div>
+                <div class="scatter-chart-wrapper">
+                    <canvas id="pca-scatter-chart"></canvas>
+                </div>
+            </section>
+
+            <!-- Cluster Profiles Comparison Matrix -->
+            <section class="profiles-section">
+                <div class="section-header">
+                    <h2>Cluster Profiles</h2>
+                    <p class="section-subtitle">Comparison of key demographic, financial, and behavioral averages across segments.</p>
+                </div>
+                <div class="table-scroll-wrapper">
+                    <table class="comparison-table">
+                        <thead id="comparison-thead"></thead>
+                        <tbody id="comparison-tbody"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Explore Customers Section -->
+            <section class="explore-section" id="explore-section">
+                <div class="explore-header-row">
+                    <div>
+                        <h2>Explore Customers</h2>
+                        <p class="section-subtitle">Inspect individual customer records and their assigned segment.</p>
+                    </div>
+                    <div class="filter-group">
+                        <label for="cluster-select-filter" class="filter-label">Cluster</label>
+                        <select id="cluster-select-filter" class="select-control">
+                            <option value="all">All Customers</option>
+                            <option value="0">Cluster 0</option>
+                            <option value="1">Cluster 1</option>
+                            <option value="2">Cluster 2</option>
+                            <option value="3">Cluster 3</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="table-scroll-wrapper sticky-table-wrapper">
+                    <table class="data-table customer-explore-table">
+                        <thead>
+                            <tr>
+                                <th>Customer ID</th>
+                                <th>Birth Year</th>
+                                <th>Education</th>
+                                <th>Income ($)</th>
+                                <th>Recency (Days)</th>
+                                <th>Total Spending ($)</th>
+                                <th>Web Purchases</th>
+                                <th>Store Purchases</th>
+                                <th>Assigned Cluster</th>
+                            </tr>
+                        </thead>
+                        <tbody id="customer-explore-tbody"></tbody>
+                    </table>
+                </div>
+                <div class="pagination-footer" id="pagination-footer"></div>
+            </section>
+
+            <!-- Download Clustered CSV Callout -->
+            <section class="download-section">
+                <div class="download-content">
+                    <div>
+                        <h3>Download clustered dataset</h3>
+                        <p class="download-desc">Export the original customer data with the assigned cluster column for further analysis.</p>
+                    </div>
+                    <a href="http://127.0.0.1:8000/api/download-clustered-csv" class="btn btn-dark" id="btn-download-csv">
+                        ↓ Download CSV
+                    </a>
+                </div>
+            </section>
+
+            <!-- Cluster Insights Section -->
+            <section class="insights-section">
+                <div class="section-header">
+                    <h2>What do these clusters tell us?</h2>
+                    <p class="section-subtitle">Behavioral interpretations calculated from dataset segment characteristics.</p>
+                </div>
+                <div class="insights-grid" id="insights-grid"></div>
+            </section>
+        </div>
+
+        <!-- Compact About Model Section -->
+        <section id="about-section" class="about-model-section">
+            <div class="section-header">
+                <h2>About the Model</h2>
+            </div>
+            <div class="compact-model-grid">
+                <div class="model-spec">
+                    <span class="spec-label">Method</span>
+                    <strong class="spec-val">Agglomerative Clustering</strong>
+                </div>
+                <div class="model-spec">
+                    <span class="spec-label">Linkage</span>
+                    <strong class="spec-val">Ward</strong>
+                </div>
+                <div class="model-spec">
+                    <span class="spec-label">Clusters</span>
+                    <strong class="spec-val">4</strong>
+                </div>
+                <div class="model-spec">
+                    <span class="spec-label">Dimensionality Reduction</span>
+                    <strong class="spec-val">PCA · 3 Components</strong>
+                </div>
+                <div class="model-spec">
+                    <span class="spec-label">Preprocessing</span>
+                    <strong class="spec-val">One-Hot Encoding · StandardScaler</strong>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="app-footer">
+        <div class="footer-container">
+            <span>SmartCart Customer Clustering</span>
+            <span>&bull;</span>
+            <span>Unsupervised Learning Pipeline</span>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
